@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
  * Vytvorí nového hráča v databáze.
  */
 export async function createPlayer(nickname: string): Promise<string> {
-  if (!nickname || nickname.length > 50) {
+  if (!nickname || nickname.length > 20) {
     throw new Error('Neplatné meno hráča. Meno je príliš dlhé.');
   }
 
@@ -69,8 +69,19 @@ function normalizeString(str: string): string {
  * Spracuje odpoveď od hráča, skontroluje jej správnosť a aktualizuje skóre.
  */
 export async function submitAnswer(playerId: string, questionId: number, answer: string) {
-  if (!answer || answer.length > 150) {
+  if (!answer || answer.length > 20) {
     throw new Error('Odpoveď je príliš dlhá.');
+  }
+
+  // Kontrola, či hráč vôbec existuje v databáze (či nebol vymazaný)
+  const { data: playerExists, error: playerCheckError } = await supabaseAdmin
+    .from('players')
+    .select('id')
+    .eq('id', playerId)
+    .single();
+
+  if (playerCheckError || !playerExists) {
+    throw new Error('Hráč nebol nájdený.');
   }
 
   // Kontrola, či už hráč na túto otázku neodpovedal správne v minulosti

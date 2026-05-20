@@ -77,7 +77,12 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
         setFeedbackByQuestion((prev) => ({ ...prev, ...restoredFeedback }));
         setWrongByQuestion((prev) => ({ ...prev, ...Object.fromEntries(progress.correctQuestionIds.map((id) => [id, false])) }));
         setScore(progress.score);
-      } catch {
+      } catch (error) {
+        if (error instanceof Error && error.message === 'Hráč nebol nájdený.') {
+          setPlayer(null);
+          window.localStorage.removeItem(STORAGE_KEY);
+          setFormError('Tvoj účet bol vymazaný z databázy. Prosím, zadaj prezývku znova.');
+        }
         // Ignore restore errors to keep the UI usable offline.
       }
     })();
@@ -95,6 +100,11 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
     const trimmed = nickname.trim();
     if (!trimmed) {
       setFormError('Zadaj prezývku, aby si mohol začať.');
+      return;
+    }
+    
+    if (trimmed.length > 20) {
+      setFormError('Prezývka je príliš dlhá (max 20 znakov).');
       return;
     }
 
@@ -131,6 +141,11 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
       return;
     }
 
+    if (trimmed.length > 20) {
+      setErrorByQuestion((prev) => ({ ...prev, [questionId]: 'Odpoveď je príliš dlhá (max 20 znakov).' }));
+      return;
+    }
+
     startTransition(() => {
       setPendingQuestionId(questionId);
       setErrorByQuestion((prev) => ({ ...prev, [questionId]: '' }));
@@ -155,10 +170,17 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
             setWrongByQuestion((prev) => ({ ...prev, [questionId]: true }));
           }
         } catch (error) {
-          setErrorByQuestion((prev) => ({
-            ...prev,
-            [questionId]: (error as Error).message || 'Nepodarilo sa odoslať odpoveď.',
-          }));
+          const msg = (error as Error).message;
+          if (msg === 'Hráč nebol nájdený.') {
+            setPlayer(null);
+            window.localStorage.removeItem(STORAGE_KEY);
+            setFormError('Tvoj účet bol vymazaný z databázy. Prosím, zadaj prezývku znova.');
+          } else {
+            setErrorByQuestion((prev) => ({
+              ...prev,
+              [questionId]: msg || 'Nepodarilo sa odoslať odpoveď.',
+            }));
+          }
         } finally {
           setPendingQuestionId(null);
         }
@@ -199,6 +221,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
               type="text"
               value={nickname}
               onChange={(event) => setNickname(event.target.value)}
+          maxLength={20}
               placeholder="Napr. Einstein123"
               className="w-full rounded-2xl border-2 border-amber-200 bg-white px-5 py-4 text-lg font-medium text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
             />
@@ -270,6 +293,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
                           value={answers[question.id] ?? ''}
                           disabled={isLocked}
                           onChange={(event) => handleAnswerChange(question.id, event.target.value)}
+                          maxLength={20}
                           placeholder="Tvoja odpoveď..."
                           className="w-full flex-1 rounded-2xl border-2 border-amber-200 bg-white px-5 py-4 text-lg font-medium text-slate-800 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-70"
                         />
