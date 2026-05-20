@@ -178,7 +178,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
           </div>
           <div className="flex flex-col items-end">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-600">Skóre</p>
-            <div className="flex items-baseline gap-1 text-3xl font-black text-amber-500 drop-shadow-sm"><span>{score}</span><span className="text-xl">⭐</span></div>
+            <div className="flex items-center gap-1 text-3xl font-black text-amber-500 drop-shadow-sm"><span>{score}</span><span className="text-xl">⭐</span></div>
           </div>
         </div>
       ) : null}
