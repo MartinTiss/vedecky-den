@@ -116,15 +116,16 @@ export async function submitAnswer(playerId: string, questionId: number, answer:
   await supabaseAdmin.from('answers').insert({ player_id: playerId, question_id: questionId, answer_text: answer, is_correct: isCorrect });
 
   if (isCorrect) {
-    // Pri správnej odpovedi načíta aktuálne skóre a zvýši ho o 1
-    const { data: player } = await supabaseAdmin
-      .from('players')
-      .select('score')
-      .eq('id', playerId)
-      .single();
+    // Dynamicky spočíta všetky doterajšie správne odpovede z tabuľky answers.
+    // Týmto predídeme strate bodov, ak hráč odošle 2 odpovede v rovnakom momente.
+    const { count } = await supabaseAdmin
+      .from('answers')
+      .select('*', { count: 'exact', head: true })
+      .eq('player_id', playerId)
+      .eq('is_correct', true);
 
-    if (player) {
-      await supabaseAdmin.from('players').update({ score: player.score + 1 }).eq('id', playerId);
+    if (count !== null) {
+      await supabaseAdmin.from('players').update({ score: count }).eq('id', playerId);
     }
 
     revalidatePath('/admin/analytics');

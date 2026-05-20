@@ -91,17 +91,17 @@ export async function loginAdmin(formData: FormData) {
     redirect('/admin?error=1');
   }
 
-  const a = Buffer.from(adminPass);
-  const b = Buffer.from(password);
+  // Zahasujeme obe heslá pred porovnaním, aby mali vždy zhodnú dĺžku (64 znakov).
+  // Týmto úplne skryjeme reálnu dĺžku hesla pred timing attackom.
+  const expectedHash = createHash('sha256').update(adminPass).digest('hex');
+  const providedHash = createHash('sha256').update(password).digest('hex');
 
-  if (a.length !== b.length || !timingSafeEqual(a, b)) {
+  if (!timingSafeEqual(Buffer.from(expectedHash), Buffer.from(providedHash))) {
     redirect('/admin?error=1');
   }
 
-  const hashedSession = createHash('sha256').update(password).digest('hex');
-
   const cookieStore = await cookies();
-  cookieStore.set('admin_access', hashedSession, {
+  cookieStore.set('admin_access', providedHash, {
     httpOnly: true,
     sameSite: 'lax',
     secure: true,

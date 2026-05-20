@@ -170,7 +170,7 @@ export default async function AdminPage({
                             </div>
                             <div>
                               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Akceptované odpovede</label>
-                              <input type="text" name="accepted" defaultValue={(question.accepted_answers as string[]).join(', ')} required className="mt-2 w-full rounded-2xl border-2 border-blue-200 p-3 font-medium outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100" />
+                              <input type="text" name="accepted" defaultValue={(Array.isArray(question.accepted_answers) ? question.accepted_answers : []).join(', ')} required className="mt-2 w-full rounded-2xl border-2 border-blue-200 p-3 font-medium outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100" />
                             </div>
                             <div className="flex flex-col gap-3 pt-2 sm:flex-row">
                               <button type="submit" className="w-full rounded-xl bg-blue-500 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-blue-600 active:scale-95 sm:w-auto">
@@ -197,7 +197,7 @@ export default async function AdminPage({
                               <div className="mt-3">
                                 <p className="mb-2 text-xs font-bold uppercase tracking-[0.15em] text-slate-400">Akceptované odpovede</p>
                                 <div className="flex flex-wrap gap-2">
-                                  {(question.accepted_answers as string[]).map((ans, idx) => (
+                                  {(Array.isArray(question.accepted_answers) ? question.accepted_answers : []).map((ans, idx) => (
                                     <span key={idx} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700">
                                       {ans}
                                     </span>
