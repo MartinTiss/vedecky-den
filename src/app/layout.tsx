@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Vedecký deň kvíz',
-  description: 'Asynchrónny kvíz s okamžitým vyhodnotením odpovedí a ochranou proti podvádzaniu.',
+  description: 'Kvíz pre vedecký deň na ZŠ Rajčianska',
 };
 
 export default function RootLayout({
