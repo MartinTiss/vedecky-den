@@ -65,24 +65,29 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
         const progress = await getPlayerProgress(player.id);
         if (canceled) return;
 
-        const restoredFeedback: Record<number, FeedbackState> = {};
-        progress.correctQuestionIds.forEach((questionId) => {
-          restoredFeedback[questionId] = {
-            variant: 'correct',
-            title: 'Správna odpoveď',
-            message: '',
-          };
-        });
-
-        setFeedbackByQuestion((prev) => ({ ...prev, ...restoredFeedback }));
-        setWrongByQuestion((prev) => ({ ...prev, ...Object.fromEntries(progress.correctQuestionIds.map((id) => [id, false])) }));
-        setScore(progress.score);
-      } catch (error) {
-        if (error instanceof Error && error.message === 'Hráč nebol nájdený.') {
+        if ('error' in progress && progress.error === 'PLAYER_NOT_FOUND') {
           setPlayer(null);
           window.localStorage.removeItem(STORAGE_KEY);
           setFormError('Tvoj účet bol vymazaný z databázy. Prosím, zadaj prezývku znova.');
+          return;
         }
+
+        if ('correctQuestionIds' in progress && progress.correctQuestionIds) {
+          const correctIds = progress.correctQuestionIds as number[];
+          const restoredFeedback: Record<number, FeedbackState> = {};
+          correctIds.forEach((questionId) => {
+            restoredFeedback[questionId] = {
+              variant: 'correct',
+              title: 'Správna odpoveď',
+              message: '',
+            };
+          });
+
+          setFeedbackByQuestion((prev) => ({ ...prev, ...restoredFeedback }));
+          setWrongByQuestion((prev) => ({ ...prev, ...Object.fromEntries(correctIds.map((id) => [id, false])) }));
+          setScore(progress.score ?? 0);
+        }
+      } catch (error) {
         // Ignore restore errors to keep the UI usable offline.
       }
     })();
@@ -141,8 +146,8 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
       return;
     }
 
-    if (trimmed.length > 20) {
-      setErrorByQuestion((prev) => ({ ...prev, [questionId]: 'Odpoveď je príliš dlhá (max 20 znakov).' }));
+    if (trimmed.length > 30) {
+      setErrorByQuestion((prev) => ({ ...prev, [questionId]: 'Odpoveď je príliš dlhá (max 30 znakov).' }));
       return;
     }
 
@@ -154,7 +159,18 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
         try {
           const result = await submitAnswer(player.id, questionId, trimmed);
 
-          if (result.success) {
+          if ('error' in result && result.error) {
+            if (result.error === 'PLAYER_NOT_FOUND') {
+              setPlayer(null);
+              window.localStorage.removeItem(STORAGE_KEY);
+              setFormError('Tvoj účet bol vymazaný z databázy. Prosím, zadaj prezývku znova.');
+              return;
+            }
+            setErrorByQuestion((prev) => ({ ...prev, [questionId]: result.error as string }));
+            return;
+          }
+
+          if ('success' in result && result.success) {
             setFeedbackByQuestion((prev) => ({
               ...prev,
               [questionId]: {
@@ -170,17 +186,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
             setWrongByQuestion((prev) => ({ ...prev, [questionId]: true }));
           }
         } catch (error) {
-          const msg = (error as Error).message;
-          if (msg === 'Hráč nebol nájdený.') {
-            setPlayer(null);
-            window.localStorage.removeItem(STORAGE_KEY);
-            setFormError('Tvoj účet bol vymazaný z databázy. Prosím, zadaj prezývku znova.');
-          } else {
-            setErrorByQuestion((prev) => ({
-              ...prev,
-              [questionId]: msg || 'Nepodarilo sa odoslať odpoveď.',
-            }));
-          }
+          setErrorByQuestion((prev) => ({ ...prev, [questionId]: 'Nepodarilo sa odoslať odpoveď.' }));
         } finally {
           setPendingQuestionId(null);
         }
@@ -293,7 +299,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
                           value={answers[question.id] ?? ''}
                           disabled={isLocked}
                           onChange={(event) => handleAnswerChange(question.id, event.target.value)}
-                          maxLength={20}
+                          maxLength={30}
                           placeholder="Tvoja odpoveď..."
                           className="w-full flex-1 rounded-2xl border-2 border-amber-200 bg-white px-5 py-4 text-lg font-medium text-slate-800 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-70"
                         />

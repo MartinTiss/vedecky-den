@@ -35,7 +35,7 @@ export async function getPlayerProgress(playerId: string) {
     .single();
 
   if (playerError || !player) {
-    throw new Error('Hráč nebol nájdený.');
+    return { error: 'PLAYER_NOT_FOUND' };
   }
 
   const { data: answers, error: answersError } = await supabaseAdmin
@@ -69,8 +69,8 @@ function normalizeString(str: string): string {
  * Spracuje odpoveď od hráča, skontroluje jej správnosť a aktualizuje skóre.
  */
 export async function submitAnswer(playerId: string, questionId: number, answer: string) {
-  if (!answer || answer.length > 20) {
-    throw new Error('Odpoveď je príliš dlhá.');
+  if (!answer || answer.length > 30) {
+    return { error: 'Odpoveď je príliš dlhá (max 30 znakov).' };
   }
 
   // Kontrola, či hráč vôbec existuje v databáze (či nebol vymazaný)
@@ -81,7 +81,7 @@ export async function submitAnswer(playerId: string, questionId: number, answer:
     .single();
 
   if (playerCheckError || !playerExists) {
-    throw new Error('Hráč nebol nájdený.');
+    return { error: 'PLAYER_NOT_FOUND' };
   }
 
   // Kontrola, či už hráč na túto otázku neodpovedal správne v minulosti
