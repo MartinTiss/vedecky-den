@@ -252,7 +252,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
               return (
                 <div
                   key={question.id}
-                  className="mx-auto w-full max-w-2xl space-y-5 rounded-3xl border-2 border-white/80 bg-white/80 p-5 shadow-lg shadow-amber-200/40 backdrop-blur-md sm:p-8 transition-all hover:border-blue-200"
+                  className="mx-auto w-full max-w-2xl space-y-5 rounded-3xl border-2 border-white/80 bg-white/80 p-5 shadow-lg shadow-amber-200/40 backdrop-blur-md sm:p-8"
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xl font-extrabold text-blue-600">
