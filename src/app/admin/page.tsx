@@ -32,7 +32,7 @@ export default async function AdminPage({
   const editId = resolvedParams.edit ? parseInt(resolvedParams.edit, 10) : null;
 
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden bg-amber-50 px-4 py-8 sm:px-6 sm:py-10 text-slate-900">
+    <main className="relative flex min-h-screen flex-col overflow-hidden bg-amber-50 px-4 py-8 sm:px-6 sm:py-10 text-slate-900 select-none">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),_transparent_35%),radial-gradient(circle_at_85%_20%,_rgba(244,63,94,0.18),_transparent_30%),linear-gradient(180deg,_rgba(254,240,138,1),_rgba(254,215,170,1))]" />
       <div className="absolute left-[-9rem] top-[-6rem] h-72 w-72 rounded-full bg-blue-400/20 blur-3xl" />
       <div className="absolute right-[-7rem] top-[14rem] h-80 w-80 rounded-full bg-pink-400/20 blur-3xl" />
