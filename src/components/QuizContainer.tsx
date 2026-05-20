@@ -237,7 +237,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
               disabled={isPending}
               className="w-full rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4 text-lg font-bold text-white shadow-lg shadow-blue-300 transition-all hover:scale-[1.02] hover:shadow-xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isPending ? 'Vytváram...' : 'Začať kvíz'}
+              {isPending ? 'Prihlasujem...' : 'Začať kvíz'}
             </button>
             <Link href="/admin" className="block pt-2 text-center text-sm font-medium text-slate-400 transition hover:text-slate-500">
               Admin
