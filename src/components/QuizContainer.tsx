@@ -126,7 +126,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
           setErrorByQuestion({});
           setWrongByQuestion({});
         } catch (error) {
-          setFormError((error as Error).message || 'Nepodarilo sa vytvoriť hráča.');
+          setFormError(error instanceof Error ? error.message : 'Nepodarilo sa vytvoriť hráča.');
         }
       })();
     });
@@ -186,7 +186,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
             setWrongByQuestion((prev) => ({ ...prev, [questionId]: true }));
           }
         } catch (error) {
-          setErrorByQuestion((prev) => ({ ...prev, [questionId]: 'Nepodarilo sa odoslať odpoveď.' }));
+          setErrorByQuestion((prev) => ({ ...prev, [questionId]: error instanceof Error ? error.message : 'Nepodarilo sa odoslať odpoveď.' }));
         } finally {
           setPendingQuestionId(null);
         }

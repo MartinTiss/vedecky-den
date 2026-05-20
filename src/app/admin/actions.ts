@@ -4,15 +4,28 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { supabaseAdmin } from '@/lib/supabase';
+import { createHash, timingSafeEqual } from 'crypto';
 
 function getAdminPassword(): string | undefined {
   return process.env.ADMIN_PASSWORD;
 }
 
+export async function verifyAdminToken(token?: string | null): Promise<boolean> {
+  const adminPass = getAdminPassword();
+  if (!adminPass || !token) return false;
+
+  const expectedHash = createHash('sha256').update(adminPass).digest('hex');
+  const a = Buffer.from(expectedHash);
+  const b = Buffer.from(token);
+
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
 export async function deleteQuestion(formData: FormData) {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get('admin_access')?.value ?? '';
-  if (!isAdminSession(sessionToken)) {
+  if (!(await verifyAdminToken(sessionToken))) {
     redirect('/admin?error=1');
   }
 
@@ -31,13 +44,13 @@ export async function deleteQuestion(formData: FormData) {
   }
 
   revalidatePath('/', 'layout');
-  redirect('/admin?success=deleted');
+  redirect('/admin');
 }
 
 export async function updateQuestion(formData: FormData) {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get('admin_access')?.value ?? '';
-  if (!isAdminSession(sessionToken)) {
+  if (!(await verifyAdminToken(sessionToken))) {
     redirect('/admin?error=1');
   }
 
@@ -70,20 +83,25 @@ export async function updateQuestion(formData: FormData) {
   redirect('/admin');
 }
 
-function isAdminSession(password?: string | null): boolean {
-  const adminPassword = getAdminPassword();
-  return Boolean(adminPassword && password && password === adminPassword);
-}
-
 export async function loginAdmin(formData: FormData) {
   const password = String(formData.get('password') ?? '').trim();
+  const adminPass = getAdminPassword();
 
-  if (!isAdminSession(password)) {
+  if (!adminPass) {
     redirect('/admin?error=1');
   }
 
+  const a = Buffer.from(adminPass);
+  const b = Buffer.from(password);
+
+  if (a.length !== b.length || !timingSafeEqual(a, b)) {
+    redirect('/admin?error=1');
+  }
+
+  const hashedSession = createHash('sha256').update(password).digest('hex');
+
   const cookieStore = await cookies();
-  cookieStore.set('admin_access', password, {
+  cookieStore.set('admin_access', hashedSession, {
     httpOnly: true,
     sameSite: 'lax',
     secure: true,
@@ -109,7 +127,7 @@ export async function logoutAdmin() {
 export async function createQuestion(formData: FormData) {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get('admin_access')?.value ?? '';
-  if (!isAdminSession(sessionToken)) {
+  if (!(await verifyAdminToken(sessionToken))) {
     redirect('/admin?error=1');
   }
 
@@ -138,5 +156,5 @@ export async function createQuestion(formData: FormData) {
     redirect('/admin?error=3');
   }
 
-  redirect('/admin?success=1');
+  revalidatePath('/', 'layout');
 }

@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase';
+import { verifyAdminToken } from '../actions';
 
 async function isAdminSession(): Promise<boolean> {
-  const adminToken = process.env.ADMIN_PASSWORD;
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get('admin_access')?.value;
-  return Boolean(adminToken && sessionToken && sessionToken === adminToken);
+  return await verifyAdminToken(sessionToken);
 }
 
 type AnswerRow = {

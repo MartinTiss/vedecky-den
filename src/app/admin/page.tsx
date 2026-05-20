@@ -1,20 +1,26 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase';
-import { createQuestion, loginAdmin, logoutAdmin, deleteQuestion, updateQuestion } from './actions';
+import { createQuestion, loginAdmin, logoutAdmin, updateQuestion, verifyAdminToken } from './actions';
+import { DeleteButton } from './DeleteButton';
 
 async function isAdminSession(): Promise<boolean> {
-  const adminToken = process.env.ADMIN_PASSWORD;
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get('admin_access')?.value;
-  return Boolean(adminToken && sessionToken && sessionToken === adminToken);
+  
+  return await verifyAdminToken(sessionToken);
 }
 
 async function loadQuestions() {
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from('questions')
     .select('id, text, accepted_answers')
     .order('id', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching questions:', error);
+    return [];
+  }
 
   return data ?? [];
 }
@@ -22,14 +28,14 @@ async function loadQuestions() {
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ error?: string; success?: string; edit?: string }>;
+  searchParams?: Promise<{ error?: string; edit?: string }>;
 }) {
   const authed = await isAdminSession();
   const questions = authed ? await loadQuestions() : [];
   const resolvedParams = (await searchParams) ?? {};
   const error = resolvedParams.error;
-  const success = resolvedParams.success;
-  const editId = resolvedParams.edit ? parseInt(resolvedParams.edit, 10) : null;
+  const parsedEditId = resolvedParams.edit ? parseInt(resolvedParams.edit, 10) : null;
+  const editId = Number.isNaN(parsedEditId) ? null : parsedEditId;
 
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-amber-50 px-4 py-8 sm:px-6 sm:py-10 text-slate-900 select-none">
@@ -93,7 +99,7 @@ export default async function AdminPage({
               </div>
             </header>
 
-            <form action={createQuestion} className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-lg shadow-amber-200/60 backdrop-blur-sm">
+            <form key={questions.length} action={createQuestion} className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-lg shadow-amber-200/60 backdrop-blur-sm">
               <div className="flex flex-col items-start gap-4 border-b border-amber-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-xl font-bold text-slate-900">✨ Nová otázka</h2>
                 <button
@@ -144,7 +150,6 @@ export default async function AdminPage({
 
             <div className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-lg shadow-amber-200/60 backdrop-blur-sm">
               <h2 className="mb-5 text-xl font-bold text-slate-900">📋 Zoznam uložených otázok</h2>
-              {success === 'deleted' ? <div className="mb-5 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-700">Otázka bola úspešne vymazaná.</div> : null}
               {error === 'delete' ? <div className="mb-5 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-600">Nastala chyba pri mazaní otázky.</div> : null}
               {error === 'update' ? <div className="mb-5 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-600">Nastala chyba pri úprave otázky.</div> : null}
               <div className="space-y-4">
@@ -204,12 +209,7 @@ export default async function AdminPage({
                               <Link href={`/admin?edit=${question.id}`} scroll={false} className="rounded-xl bg-blue-50 px-4 py-2 text-center text-sm font-bold text-blue-600 transition hover:bg-blue-100">
                                 Upraviť
                               </Link>
-                              <form action={deleteQuestion}>
-                                <input type="hidden" name="id" value={question.id} />
-                                <button type="submit" className="w-full rounded-xl bg-rose-50 px-4 py-2 text-center text-sm font-bold text-rose-600 transition hover:bg-rose-100">
-                                  Vymazať
-                                </button>
-                              </form>
+                              <DeleteButton id={question.id} />
                             </div>
                           </div>
                         </div>

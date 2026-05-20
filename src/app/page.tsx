@@ -1,8 +1,8 @@
 import QuizContainer, { type PublicQuestion } from '@/components/QuizContainer';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 async function loadQuestions(): Promise<PublicQuestion[]> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabase
     .from('questions')
     .select('id, text')
     .order('id', { ascending: true });
