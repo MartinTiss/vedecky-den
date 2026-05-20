@@ -108,8 +108,8 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
       return;
     }
     
-    if (trimmed.length > 20) {
-      setFormError('Prezývka je príliš dlhá (max 20 znakov).');
+    if (trimmed.length > 15) {
+      setFormError('Prezývka je príliš dlhá (max 15 znakov).');
       return;
     }
 
@@ -227,7 +227,7 @@ export default function QuizContainer({ questions }: { questions: PublicQuestion
               type="text"
               value={nickname}
               onChange={(event) => setNickname(event.target.value)}
-          maxLength={20}
+          maxLength={15}
               placeholder="Napr. Einstein123"
               className="w-full rounded-2xl border-2 border-amber-200 bg-white px-5 py-4 text-lg font-medium text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
             />

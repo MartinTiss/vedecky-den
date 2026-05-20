@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
  * Vytvorí nového hráča v databáze.
  */
 export async function createPlayer(nickname: string): Promise<string> {
-  if (!nickname || nickname.length > 20) {
+  if (!nickname || nickname.length > 15) {
     throw new Error('Neplatné meno hráča. Meno je príliš dlhé.');
   }
 
