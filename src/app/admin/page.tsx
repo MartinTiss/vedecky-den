@@ -100,14 +100,8 @@ export default async function AdminPage({
             </header>
 
             <form key={questions.length} action={createQuestion} className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-lg shadow-amber-200/60 backdrop-blur-sm">
-              <div className="flex flex-col items-start gap-4 border-b border-amber-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="border-b border-amber-100 pb-4">
                 <h2 className="text-xl font-bold text-slate-900">✨ Nová otázka</h2>
-                <button
-                  type="submit"
-                  className="w-full rounded-2xl bg-blue-500 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-blue-600 active:scale-95 sm:w-auto"
-                >
-                  + Pridať otázku
-                </button>
               </div>
               <div className="mt-5 space-y-5">
                 <div>
@@ -139,6 +133,14 @@ export default async function AdminPage({
                     Jednotlivé odpovede oddeľte čiarkou. Systém automaticky akceptuje odpovede bez ohľadu na veľké/malé písmená a diakritiku.
                   </p>
                 </div>
+              </div>
+              <div className="mt-6 flex flex-col sm:flex-row sm:justify-end">
+                <button
+                  type="submit"
+                  className="w-full rounded-2xl bg-blue-500 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-blue-600 active:scale-95 sm:w-auto"
+                >
+                  + Pridať otázku
+                </button>
               </div>
               {error === '2' ? (
                 <div className="mt-5 rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-600">Vyplňte text otázky aj odpovede.</div>
