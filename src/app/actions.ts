@@ -7,6 +7,10 @@ import { revalidatePath } from 'next/cache';
  * Vytvorí nového hráča v databáze.
  */
 export async function createPlayer(nickname: string): Promise<string> {
+  if (!nickname || nickname.length > 50) {
+    throw new Error('Neplatné meno hráča. Meno je príliš dlhé.');
+  }
+
   const { data, error } = await supabaseAdmin
     .from('players')
     .insert({ nickname, score: 0 })
@@ -65,6 +69,23 @@ function normalizeString(str: string): string {
  * Spracuje odpoveď od hráča, skontroluje jej správnosť a aktualizuje skóre.
  */
 export async function submitAnswer(playerId: string, questionId: number, answer: string) {
+  if (!answer || answer.length > 150) {
+    throw new Error('Odpoveď je príliš dlhá.');
+  }
+
+  // Kontrola, či už hráč na túto otázku neodpovedal správne v minulosti
+  const { data: alreadyAnswered } = await supabaseAdmin
+    .from('answers')
+    .select('id')
+    .eq('player_id', playerId)
+    .eq('question_id', questionId)
+    .eq('is_correct', true)
+    .maybeSingle();
+
+  if (alreadyAnswered) {
+    return { success: true }; // Už bolo správne zodpovedané, body nepričítavame
+  }
+
   const { data: question, error: questionError } = await supabaseAdmin
     .from('questions')
     .select('accepted_answers')
