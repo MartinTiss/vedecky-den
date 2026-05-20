@@ -126,7 +126,7 @@ export default async function AdminPage({
                     name="accepted"
                     type="text"
                     className="mt-2 w-full rounded-2xl border-2 border-amber-200 bg-white px-5 py-3 text-base font-medium text-slate-800 shadow-sm outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                    placeholder="Bratislava, BA, hlavné mesto"
+                    placeholder="Zem, planéta Zem"
                     required
                   />
                   <p className="mt-2 text-xs leading-relaxed text-slate-500">
