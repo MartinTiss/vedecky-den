@@ -1,6 +1,6 @@
 # Vedecký deň kvíz
 
-Základ pre asynchrónnu kvízovú webovú aplikáciu (Next.js App Router, TypeScript, Tailwind CSS, Supabase).
+Kvízová webová aplikácia pre akciu Vedecký deň na ZŠ Rajčianska.
 
 ## Rýchly štart
 
