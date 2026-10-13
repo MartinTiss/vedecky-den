@@ -1,8 +1,8 @@
-# Vedecký deň kvíz
+# Science Day Quiz
 
-Kvízová webová aplikácia pre akciu Vedecký deň na ZŠ Rajčianska.
+A quiz web application for the Science Day event at Rajčianska Elementary School.
 
-## Rýchly štart
+## Quick Start
 
 ```bash
 npm install
@@ -11,24 +11,24 @@ npm run dev
 
 ## Supabase SQL
 
-- Spusti skript v [db/schema.sql](db/schema.sql).
-- Do tabuľky `questions` ulož otázky a pole `accepted_answers` (napr. `["Bratislava", "BA"]`). Systém automaticky ignoruje veľkosť písmen a diakritiku.
+- Run the script in [db/schema.sql](db/schema.sql).
+- Insert questions and the `accepted_answers` array into the `questions` table (e.g., `["Bratislava", "BA"]`). The system automatically ignores case and diacritics.
 
-## Premenné prostredia
+## Environment Variables
 
-Skopíruj `.env.example` do `.env.local` a doplň hodnoty:
+Copy `.env.example` to `.env.local` and fill in the values:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `ADMIN_PASSWORD`
 
-## Dôležité súbory
+## Important Files
 
-- [src/app/actions.ts](src/app/actions.ts) - server actions pre `createPlayer` a `submitAnswer`
-- src/app/admin/actions.ts - server actions pre správu administrácie (prihlásenie, úprava a mazanie otázok)
-- [src/lib/supabase.ts](src/lib/supabase.ts) - klienti `supabase` a `supabaseAdmin`
-- [src/components/QuizContainer.tsx](src/components/QuizContainer.tsx) - klientsky kvízový komponent
-- [src/app/page.tsx](src/app/page.tsx) - načítanie otázok a layout
-- [src/app/admin/page.tsx](src/app/admin/page.tsx) - admin rozhranie pre otázky
-- [src/app/admin/analytics/page.tsx](src/app/admin/analytics/page.tsx) - štatistiky odpovedí a skóre
+- [src/app/actions.ts](src/app/actions.ts) - server actions for `createPlayer` and `submitAnswer`
+- src/app/admin/actions.ts - server actions for admin management (login, editing, and deleting questions)
+- [src/lib/supabase.ts](src/lib/supabase.ts) - `supabase` and `supabaseAdmin` clients
+- [src/components/QuizContainer.tsx](src/components/QuizContainer.tsx) - client-side quiz component
+- [src/app/page.tsx](src/app/page.tsx) - question fetching and layout
+- [src/app/admin/page.tsx](src/app/admin/page.tsx) - admin interface for questions
+- [src/app/admin/analytics/page.tsx](src/app/admin/analytics/page.tsx) - answer and score analytics
